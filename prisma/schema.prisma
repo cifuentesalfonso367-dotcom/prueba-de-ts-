@@ -1,0 +1,58 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           Int        @id @default(autoincrement())
+  nombre       String
+  email        String     @unique
+  rol          Role       @default(USER)
+  estado       UserStatus @default(ACTIVE)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  passwordHash String
+  auditLogs    AuditLog[]
+  documentos   Document[]
+}
+
+model Document {
+  id        Int            @id @default(autoincrement())
+  estado    DocumentStatus @default(PENDING)
+  title     String?
+  usuarioId Int
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  fileUrl   String?
+  usuario   User           @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id        Int      @id @default(autoincrement())
+  action    String
+  entity    String
+  entityId  Int
+  userId    Int
+  details   Json?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum DocumentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
