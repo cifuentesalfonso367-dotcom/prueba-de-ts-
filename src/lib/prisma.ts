@@ -2,9 +2,14 @@ import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
 
-const globalForPrisma = global as unknown as { prisma: PrismaClient };
-
 const connectionString = process.env.DATABASE_URL;
+if (!connectionString) {
+  throw new Error(
+    'DATABASE_URL is required to initialize Prisma. Configure it in Vercel Environment Variables or in a local .env file.'
+  );
+}
+
+const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
 
 const createPrismaClient = () => {
   const pool = new Pool({ connectionString });
